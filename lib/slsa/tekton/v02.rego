@@ -24,13 +24,19 @@ _expected_build_type := "tekton.dev/v1beta1/PipelineRun"
 _build_type(predicate) := predicate.buildType
 
 # Labels from the taskRun CR
-_labels(raw_task) := raw_task.invocation.environment.labels
+_labels(raw_task) := ls if {
+	ls := raw_task.invocation.environment.labels
+} else := {}
 
 # The taskRun results
-_results(raw_task) := raw_task.results
+_results(raw_task) := rs if {
+	rs := raw_task.results
+} else := []
 
-# The taskRef. Could be an empty map object.
-_ref(raw_task) := raw_task.ref
+# The taskRef
+_ref(raw_task) := r if {
+	r := raw_task.ref
+} else := {}
 
 # TaskRun params
 _params(raw_task) := ps if {

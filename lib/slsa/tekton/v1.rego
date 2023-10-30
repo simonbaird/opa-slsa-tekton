@@ -35,19 +35,24 @@ _expected_build_type := "https://tekton.dev/chains/v2/slsa-tekton"
 _build_type(predicate) := predicate.buildDefinition.buildType
 
 # Labels from the taskRun CR
-_labels(raw_task) := raw_task.metadata.labels
+_labels(raw_task) := ls if {
+	ls := raw_task.metadata.labels
+} else := {}
 
 # TaskRun results
-_results(raw_task) := raw_task.status.taskResults
+_results(raw_task) := rs if {
+	rs := raw_task.status.taskResults
+} else := []
 
-# The taskRef. In the data it could be missing so for consistency we'll
-# use else to return an empty map object in that scenario
-_ref(raw_task) := _r if {
-	_r := raw_task.spec.taskRef
+# The taskRef
+_ref(raw_task) := r if {
+	r := raw_task.spec.taskRef
 } else := {}
 
 # TaskRun params
-_params(raw_task) := raw_task.spec.params
+_params(raw_task) := ps if {
+	ps := raw_task.spec.params
+} else := []
 
 # Assemble all the above useful pieces in an internal format that we can use
 # in rules without caring about what the original SLSA format was.
