@@ -32,12 +32,27 @@ _results(raw_task) := raw_task.results
 # The taskRef. Could be an empty map object.
 _ref(raw_task) := raw_task.ref
 
+# TaskRun params
+_params(raw_task) := ps if {
+	params_map := raw_task.invocation.parameters
+
+	# Convert the key/value map into an array
+	ps := {param|
+		some key, val in params_map
+		param := {
+			"name": key,
+			"value": val,
+		}
+	}
+} else := []
+
 # Assemble all the above useful pieces in an internal format that we can use
 # in rules without caring about what the original SLSA format was.
 _cooked_task(raw_task) := {
 	"labels": _labels(raw_task),
 	"results": _results(raw_task),
 	"ref": _ref(raw_task),
+	"params": _params(raw_task),
 	# TODO: Other stuff here
 }
 

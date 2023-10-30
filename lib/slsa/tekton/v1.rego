@@ -46,12 +46,16 @@ _ref(raw_task) := _r if {
 	_r := raw_task.spec.taskRef
 } else := {}
 
+# TaskRun params
+_params(raw_task) := raw_task.spec.params
+
 # Assemble all the above useful pieces in an internal format that we can use
 # in rules without caring about what the original SLSA format was.
 _cooked_task(raw_task) := {
 	"labels": _labels(raw_task),
 	"results": _results(raw_task),
 	"ref": _ref(raw_task),
+	"params": _params(raw_task),
 	# TODO: Other stuff here
 }
 
