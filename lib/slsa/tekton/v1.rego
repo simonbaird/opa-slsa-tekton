@@ -17,7 +17,7 @@ _raw_tasks(predicate) := _tasks if {
 	# Use the resolvedDependencies list
 	resolved_deps = predicate.buildDefinition.resolvedDependencies
 
-	_tasks := {task |
+	_tasks := [task |
 		some resolved_dep in resolved_deps
 
 		# There are other things in the resolvedDependencies list
@@ -26,7 +26,7 @@ _raw_tasks(predicate) := _tasks if {
 
 		# Extract the task details from the encoded json content field
 		task := json.unmarshal(base64.decode(resolved_dep.content))
-	}
+	]
 }
 
 _expected_build_type := "https://tekton.dev/chains/v2/slsa-tekton"
@@ -54,6 +54,18 @@ _params(raw_task) := ps if {
 	ps := raw_task.spec.params
 } else := []
 
+# This is the name of the task in the pipeline
+_pipeline_task_name(raw_task) := n if {
+	n := _labels(raw_task)["tekton.dev/pipelineTask"]
+} else := ""
+
+# This is the name of the task in the task definition.
+# It won't be present if the task is defined directly in the pipeline definition.
+_task_name(raw_task) := n if {
+	n := _labels(raw_task)["tekton.dev/task"]
+} else := ""
+
+
 # Assemble all the above useful pieces in an internal format that we can use
 # in rules without caring about what the original SLSA format was.
 _cooked_task(raw_task) := {
@@ -61,13 +73,17 @@ _cooked_task(raw_task) := {
 	"results": _results(raw_task),
 	"ref": _ref(raw_task),
 	"params": _params(raw_task),
-	# TODO: Other stuff here
+
+	# Todo: This the same for both formats. Would be
+	# better if this wasn't duplicated
+	"pipeline_task_name": _pipeline_task_name(raw_task),
+	"task_name": _task_name(raw_task),
 }
 
 tasks(predicate) := _tasks if {
 	raw_tasks := _raw_tasks(predicate)
-	_tasks := { cooked_task |
+	_tasks := [ cooked_task |
 		some raw_task in raw_tasks
 		cooked_task := _cooked_task(raw_task)
-	}
+	]
 }

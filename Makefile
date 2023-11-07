@@ -8,6 +8,7 @@ run-for-recording-%:
 	  -i $(RECORDINGS_DIR)/$*/attestation.json \
 	  -d main.rego \
 	  -d lib/ \
+	  -d ../ec-policies/policy/lib \
 	  -f pretty
 
 run-01: run-for-recording-01-SLSA-v0-2-Pipeline-in-cluster
@@ -42,3 +43,8 @@ sync-test-data-01: test-data-01-SLSA-v0-2-Pipeline-in-cluster
 sync-test-data-05: test-data-05-SLSA-v1-0-tekton-build-type-Pipeline-in-cluster
 
 sync-test-data: init-test-data sync-test-data-01 sync-test-data-05
+
+#-----------------------------------------------------------------------------
+
+test:
+	opa test ./lib ../ec-policies/policy/lib -v -r test_task_list
